@@ -32,6 +32,7 @@
             "installDir": "${sourceDir}/install",
             "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
             "cacheVariables": {
+                "CMAKE_SYSTEM_VERSION": "10.0.22000.0",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "VCPKG_TARGET_TRIPLET": "x64-windows"
             },

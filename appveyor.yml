@@ -22,9 +22,26 @@ configuration:
   - debug
   - release
 
+cache:
+  - c:/installed/vcpkg-cache
+  - c:/tools/vcpkg/downloads
+
+environment:
+  VCPKG_ROOT: c:/tools/vcpkg
+  VCPKG_DEFAULT_BINARY_CACHE: c:/installed/vcpkg-cache
+  VULKAN_SDK: C:/VulkanSDK/1.3.216.0
+
 install:
-  - ps: $PSVersionTable
+  # see https://vulkan.lunarg.com/doc/view/1.3.216.0/windows/getting_started.html
+  - ps: |
+      Push-Location "externals";
+        Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.3.216.0/windows/VulkanSDK-1.3.216.0-Installer.exe" -OutFile VulkanSDKInstaller.exe;
+        ./VulkanSDKInstaller.exe --version
+        ./VulkanSDKInstaller.exe --accept-licenses --default-answer --confirm-command install
+      Pop-Location;
+  - ps: New-Item -Force -Type Directory -Path ${env:VCPKG_DEFAULT_BINARY_CACHE}
   - ps: vcpkg --version
+  - ps: vcpkg install --triplet=x64-windows vulkan spdlog directxtk directxtex angle bext-ut
 
 before_build:
   - ps: cmake --preset="x64-windows-${env:configuration}"

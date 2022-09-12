@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(gles-tests VERSION 0.0.0 LANGUAGES CXX)
+project(gles-test VERSION 0.0 LANGUAGES CXX)
 
 message(STATUS "Using system: ${CMAKE_SYSTEM}")
 message(STATUS "Using compiler: ${CMAKE_CXX_COMPILER}")
@@ -7,11 +7,14 @@ message(STATUS "Using compiler: ${CMAKE_CXX_COMPILER}")
 include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
 
+find_package(Vulkan REQUIRED) # Vulkan::Vulkan
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+# find_package(ut CONFIG REQUIRED) # Boost::ut
+
+find_path(EGL_INCLUDE_DIR NAMES "EGL/egl.h" REQUIRED)
 find_library(EGL_LIBPATH NAMES libEGL EGL REQUIRED)
 find_library(GLES_LIBPATH NAMES libGLESv3 GLESv3 libGLESv2 GLESv2 REQUIRED)
-find_path(EGL_INCLUDE_DIR NAMES "EGL/egl.h" REQUIRED)
 
 add_executable(test_suite
     gles.hpp
@@ -22,7 +25,7 @@ add_executable(test_suite
 set_target_properties(test_suite
 PROPERTIES
     CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED true # Disable GNU extensions
+    # CXX_STANDARD_REQUIRED true # Disable GNU extensions
 )
 
 target_include_directories(test_suite
@@ -36,8 +39,8 @@ PRIVATE
 
 target_link_libraries(test_suite
 PRIVATE
-    fmt::fmt spdlog::spdlog
-    ${EGL_LIBPATH} ${GLES_LIBPATH}
+    fmt::fmt-header-only spdlog::spdlog_header_only
+    ${EGL_LIBPATH} ${GLES_LIBPATH} # Vulkan::Vulkan
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES Clang)

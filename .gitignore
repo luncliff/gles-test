@@ -3,6 +3,7 @@
 [Bb]uild*
 bw-output
 install
+externals
 package-lock.json
 
 site
