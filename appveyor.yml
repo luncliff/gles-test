@@ -49,7 +49,7 @@ before_build:
 build:
   project: build-x64-windows/gles-test.sln
   parallel: true
-  verbosity: detailed
+  verbosity: minimal # detailed
 
 after_build:
   - ps: cmake --build --target install --preset="x64-windows-${env:configuration}"
