@@ -54,6 +54,9 @@ build:
 after_build:
   - ps: cmake --build --target install --preset="x64-windows-${env:configuration}"
 
+test_script:
+  - ps: ctest --preset="x64-windows-${env:configuration}"
+
 artifacts:
   - path: install
     name: out-$(platform)-$(configuration)

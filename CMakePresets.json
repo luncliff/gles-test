@@ -92,6 +92,14 @@
                 "noTestsAction": "error",
                 "stopOnFailure": false
             }
+        },
+        {
+            "name": "x64-windows-release",
+            "configurePreset": "x64-windows-release",
+            "configuration": "Release",
+            "output": {
+                "outputOnFailure": true
+            }
         }
     ]
 }
