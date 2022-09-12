@@ -1,0 +1,82 @@
+{
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "x64-linux-debug",
+            "displayName": "x64-linux/debug",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-x64-linux",
+            "installDir": "${sourceDir}/install",
+            "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "VCPKG_TARGET_TRIPLET": "x64-linux"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "x64-windows-debug",
+            "displayName": "x64-windows/debug",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build-x64-windows",
+            "installDir": "${sourceDir}/install",
+            "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "VCPKG_TARGET_TRIPLET": "x64-windows"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "x64-linux-debug",
+            "configurePreset": "x64-linux-debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "x64-windows-debug",
+            "configurePreset": "x64-windows-debug",
+            "configuration": "Debug"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "x64-linux-debug",
+            "configurePreset": "x64-linux-debug",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": false
+            }
+        },
+        {
+            "name": "x64-windows-debug",
+            "configurePreset": "x64-windows-debug",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": false
+            }
+        }
+    ]
+}

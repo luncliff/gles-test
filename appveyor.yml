@@ -1,0 +1,42 @@
+version: 0.0.{build}
+
+notifications:
+  - provider: Email
+    to:
+      - luncliff@gmail.com
+
+branches:
+  except:
+    - gh-pages
+    - docs/*
+
+shallow_clone: true
+clone_depth: 3
+
+image: Visual Studio 2022
+
+platform:
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+install:
+  - ps: $PSVersionTable
+  - ps: vcpkg --version
+
+before_build:
+  - ps: cmake --version
+
+build:
+  project: build-x64-windows/gles-test.sln
+  parallel: true
+  verbosity: detailed
+
+after_build:
+  - ps: cmake --build --target install --preset=x64-windows-debug
+
+artifacts:
+  - path: install
+    name: out-$(platform)-$(configuration)
