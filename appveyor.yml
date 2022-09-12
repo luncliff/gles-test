@@ -19,15 +19,15 @@ platform:
   - x64
 
 configuration:
-  - Debug
-  - Release
+  - debug
+  - release
 
 install:
   - ps: $PSVersionTable
   - ps: vcpkg --version
 
 before_build:
-  - ps: cmake --version
+  - ps: cmake --preset="x64-windows-${env:configuration}"
 
 build:
   project: build-x64-windows/gles-test.sln
@@ -35,7 +35,7 @@ build:
   verbosity: detailed
 
 after_build:
-  - ps: cmake --build --target install --preset=x64-windows-debug
+  - ps: cmake --build --target install --preset="x64-windows-${env:configuration}"
 
 artifacts:
   - path: install
