@@ -1,19 +1,7 @@
-#pragma once
-#include <string>
-#include <system_error>
-#include <vector>
 
-#define EGL_EGL_PROTOTYPES 1
-// #define EGL_EGLEXT_PROTOTYPES
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#define GL_GLES_PROTOTYPES 1
-// #define GL_GLEXT_PROTOTYPES
-#include <GLES3/gl3.h>
+export bool check_extensions(std::vector<std::string>& output) noexcept;
 
-bool check_extensions(std::vector<std::string>& output) noexcept;
-
-class egl_surface_owner_t final {
+export class egl_surface_owner_t final {
     EGLDisplay display;
     EGLConfig config;
     EGLSurface surface = EGL_NO_SURFACE;
@@ -30,7 +18,7 @@ class egl_surface_owner_t final {
     EGLSurface handle() const noexcept;
 };
 
-class egl_context_t final {
+export class egl_context_t final {
   private:
     EGLDisplay display;
     EGLint versions[2]{};   // major, minor
@@ -55,6 +43,6 @@ class egl_context_t final {
     EGLConfig config() const noexcept;
 };
 
-bool get_opengl_version(GLint& major, GLint& minor) noexcept;
+export bool get_opengl_version(GLint& major, GLint& minor) noexcept;
 
-std::error_category& get_opengl_category() noexcept;
+export std::error_category& get_opengl_category() noexcept;

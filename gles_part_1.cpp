@@ -1,12 +1,16 @@
-#include "gles.hpp"
-
-#if defined(_WIN32)
-#include <d3d11.h> // Windows, DirectX 11
-#include <winrt/base.h>
-#endif
+module;
 #include <spdlog/spdlog.h>
 #include <string>
+#include <system_error>
 #include <vector>
+
+#define EGL_EGL_PROTOTYPES 1 // #define EGL_EGLEXT_PROTOTYPES
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#define GL_GLES_PROTOTYPES 1 // #define GL_GLEXT_PROTOTYPES
+#include <GLES3/gl3.h>
+
+module gles;
 
 class tex2d_owner_t final {
     GLuint tex{};
