@@ -1,22 +1,30 @@
-#include <cstdio>
+#if defined(_WIN32)
+#if defined(_DEBUG) && !defined(WINRT_NATVIS)
+#define WINRT_NATVIS
+#endif
+#include <winrt/base.h>
+#endif
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+
 #include <filesystem>
-#include <spdlog/sinks/stdout_sinks.h>
-#include <spdlog/spdlog.h>
+
+//import std.filesystem;
+//import boost.ut;
+
+import gles;
 
 namespace fs = std::filesystem;
 
-auto make_logger(const char* name, FILE* fout) noexcept(false) {
-    using mutex_t = spdlog::details::console_nullmutex;
-    using sink_t = spdlog::sinks::stdout_sink_base<mutex_t>;
-    return std::make_shared<spdlog::logger>(name, std::make_shared<sink_t>(fout));
-}
+bool test_egl_resume(EGLDisplay es_display) noexcept;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
-    auto logger = make_logger("test", stdout);
-    logger->set_pattern("%T.%e [%L] %8t %v");
-    logger->set_level(spdlog::level::level_enum::debug);
-    spdlog::set_default_logger(logger);
-    auto cwd = fs::current_path();
-    spdlog::debug("cwd: {}", cwd.generic_string());
+    try {
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        test_egl_resume(display);
+        eglTerminate(display);
+    } catch (...) {
+        return 1;
+    }
     return 0;
 }
