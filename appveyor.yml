@@ -45,6 +45,7 @@ install:
 
 before_build:
   - ps: cmake --preset="x64-windows-${env:configuration}"
+  - ps: cmake --build --preset="x64-windows-${env:configuration}" --target gles-ifc
 
 build:
   project: build-x64-windows/gles-test.sln

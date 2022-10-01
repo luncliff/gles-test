@@ -5,6 +5,8 @@ message(STATUS "Using system: ${CMAKE_SYSTEM}")
 message(STATUS "Using compiler: ${CMAKE_CXX_COMPILER}")
 
 include(GNUInstallDirs)
+set(CMAKE_INSTALL_UCRT_LIBRARIES true)
+string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Debug CMAKE_INSTALL_DEBUG_LIBRARIES)
 include(InstallRequiredSystemLibraries)
 
 find_package(Vulkan REQUIRED) # Vulkan::Vulkan
@@ -19,57 +21,59 @@ find_package(ut CONFIG REQUIRED) # Boost::ut
 # find_path(ut_INCLUDE_DIR NAMES "boost/ut.hpp" "ut-1.1.9/include/boost/ut.hpp" REQUIRED)
 
 # todo: output variable for IFC target
-function(add_module_interface TARGET FILE)
-    set(TARGET "${TARGET}-ifc")
-    add_library(${TARGET} STATIC ${FILE})
-    set_target_properties(${TARGET}
+function(add_module_interface NAME FILE)
+    set(IFC_PATH "${PROJECT_BINARY_DIR}/${NAME}.ifc")
+    set(IFC_TARGET "${NAME}-ifc")
+    add_library(${IFC_TARGET} STATIC ${FILE})
+    set_target_properties(${IFC_TARGET}
     PROPERTIES
         CXX_STANDARD 20
     )
     if(MSVC)
-        target_compile_options(${TARGET}
+        target_compile_options(${IFC_TARGET}
         PUBLIC
             /experimental:module
         PRIVATE
             /interface # /ifcOnly # STATIC targets must generate .lib
         )
+        install(FILES ${IFC_PATH} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
     endif()
 endfunction()
 
 # todo: more compiler support
-function(add_module TARGET TYPE)
-    add_library(${TARGET} ${TYPE})
-    add_dependencies(${TARGET} ${TARGET}-ifc)
-    set_target_properties(${TARGET}
+function(add_module NAME TYPE IFC_TARGET)
+    add_library(${NAME} ${TYPE})
+    add_dependencies(${NAME} ${IFC_TARGET})
+    set_target_properties(${NAME}
     PROPERTIES
         CXX_STANDARD 20
         # CXX_STANDARD_REQUIRED true # Disable GNU extensions
         WINDOWS_EXPORT_ALL_SYMBOLS false
     )
     if(MSVC)
-        target_compile_options(${TARGET}
+        target_compile_options(${NAME}
         PUBLIC
             /experimental:module
         PRIVATE
             /showResolvedHeader # /internalPartition
         )
-        target_link_options(${TARGET}
+        target_link_options(${NAME}
         PRIVATE
             /subsystem:windows
         )
     endif()
 endfunction()
 
-function(module_include_directories TARGET)
+function(module_include_directories NAME)
     cmake_parse_arguments(PARSE_ARGV 1 "arg" "" "IFC_TARGET" "PRIVATE;PUBLIC")
     if(NOT DEFINED arg_IFC_TARGET)
-        set(arg_IFC_TARGET ${TARGET}-ifc)
+        set(arg_IFC_TARGET ${NAME}-ifc)
     endif()
     target_include_directories(${arg_IFC_TARGET}
     PRIVATE
         ${arg_PRIVATE} ${arg_PUBLIC}
     )
-    target_include_directories(${TARGET}
+    target_include_directories(${NAME}
     PRIVATE
         ${arg_PRIVATE}
     PUBLIC
@@ -83,7 +87,7 @@ add_module_interface(gles
 )
 
 # Build with the IFC
-add_module(gles SHARED)
+add_module(gles SHARED gles-ifc)
 
 target_sources(gles
 PRIVATE
@@ -106,6 +110,15 @@ PRIVATE
     WindowsApp d3d11 d3dcompiler dxgi dxguid
 )
 
+install(TARGETS gles
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+if(WIN32)
+    install(FILES $<TARGET_PDB_FILE:gles> DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
+endif()
+
 enable_testing()
 
 add_executable(test_suite
@@ -122,4 +135,8 @@ PRIVATE
     gles Boost::ut
     ${EGL_LIBPATH}
     WindowsApp
+)
+
+install(TARGETS test_suite
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
