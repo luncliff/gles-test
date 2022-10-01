@@ -61,6 +61,16 @@ if(WIN32)
     install(FILES $<TARGET_PDB_FILE:gles> DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
 endif()
 
+include(CMakePackageConfigHelpers)
+set(VERSION_FILE_PATH   ${CMAKE_BINARY_DIR}/cmake/${PROJECT_NAME}-config-version.cmake)
+write_basic_package_version_file(${VERSION_FILE_PATH}
+    VERSION             ${PROJECT_VERSION}
+    COMPATIBILITY       SameMajorVersion
+)
+install(FILES           ${VERSION_FILE_PATH} 
+        DESTINATION     ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
+)
+
 enable_testing()
 
 add_executable(test_suite
