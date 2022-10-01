@@ -20,66 +20,8 @@ find_library(GLES_LIBPATH NAMES libGLESv3 GLESv3 libGLESv2 GLESv2 REQUIRED)
 find_package(ut CONFIG REQUIRED) # Boost::ut
 # find_path(ut_INCLUDE_DIR NAMES "boost/ut.hpp" "ut-1.1.9/include/boost/ut.hpp" REQUIRED)
 
-# todo: output variable for IFC target
-function(add_module_interface NAME FILE)
-    set(IFC_PATH "${PROJECT_BINARY_DIR}/${NAME}.ifc")
-    set(IFC_TARGET "${NAME}-ifc")
-    add_library(${IFC_TARGET} STATIC ${FILE})
-    set_target_properties(${IFC_TARGET}
-    PROPERTIES
-        CXX_STANDARD 20
-    )
-    if(MSVC)
-        target_compile_options(${IFC_TARGET}
-        PUBLIC
-            /experimental:module
-        PRIVATE
-            /interface # /ifcOnly # STATIC targets must generate .lib
-        )
-        install(FILES ${IFC_PATH} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    endif()
-endfunction()
-
-# todo: more compiler support
-function(add_module NAME TYPE IFC_TARGET)
-    add_library(${NAME} ${TYPE})
-    add_dependencies(${NAME} ${IFC_TARGET})
-    set_target_properties(${NAME}
-    PROPERTIES
-        CXX_STANDARD 20
-        # CXX_STANDARD_REQUIRED true # Disable GNU extensions
-        WINDOWS_EXPORT_ALL_SYMBOLS false
-    )
-    if(MSVC)
-        target_compile_options(${NAME}
-        PUBLIC
-            /experimental:module
-        PRIVATE
-            /showResolvedHeader # /internalPartition
-        )
-        target_link_options(${NAME}
-        PRIVATE
-            /subsystem:windows
-        )
-    endif()
-endfunction()
-
-function(module_include_directories NAME)
-    cmake_parse_arguments(PARSE_ARGV 1 "arg" "" "IFC_TARGET" "PRIVATE;PUBLIC")
-    if(NOT DEFINED arg_IFC_TARGET)
-        set(arg_IFC_TARGET ${NAME}-ifc)
-    endif()
-    target_include_directories(${arg_IFC_TARGET}
-    PRIVATE
-        ${arg_PRIVATE} ${arg_PUBLIC}
-    )
-    target_include_directories(${NAME}
-    PRIVATE
-        ${arg_PRIVATE}
-    PUBLIC
-        ${arg_PUBLIC}
-    )
-endfunction()
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/scripts)
+include(msvc-cpp-modules)
 
 # Generate IFC from primary module interface file
 add_module_interface(gles
