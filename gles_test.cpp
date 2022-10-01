@@ -7,16 +7,24 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-import std.filesystem;
+#include <filesystem>
+
+//import std.filesystem;
 //import boost.ut;
 
 import gles;
 
 namespace fs = std::filesystem;
 
-__declspec(dllimport) void test_egl_resume(EGLDisplay display, EGLSurface es_surfae);
+bool test_egl_resume(EGLDisplay es_display) noexcept;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
-    test_egl_resume(eglGetDisplay(EGL_DEFAULT_DISPLAY), EGL_NO_SURFACE);
+    try {
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        test_egl_resume(display);
+        eglTerminate(display);
+    } catch (...) {
+        return 1;
+    }
     return 0;
 }

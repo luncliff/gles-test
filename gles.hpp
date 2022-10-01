@@ -1,7 +1,11 @@
 
-export bool check_extensions(std::vector<std::string>& output) noexcept;
+#if !defined(_INTERFACE_)
+#define _INTERFACE_
+#endif
 
-export class egl_surface_owner_t final {
+export _INTERFACE_ bool check_extensions(std::vector<std::string>& output) noexcept;
+
+export class _INTERFACE_ egl_surface_owner_t final {
     EGLDisplay display;
     EGLConfig config;
     EGLSurface surface = EGL_NO_SURFACE;
@@ -18,7 +22,7 @@ export class egl_surface_owner_t final {
     EGLSurface handle() const noexcept;
 };
 
-export class egl_context_t final {
+export class _INTERFACE_ egl_context_t final {
   private:
     EGLDisplay display;
     EGLint versions[2]{};   // major, minor
@@ -43,6 +47,14 @@ export class egl_context_t final {
     EGLConfig config() const noexcept;
 };
 
-export bool get_opengl_version(GLint& major, GLint& minor) noexcept;
+export class _INTERFACE_ egl_context_guard final {
+    egl_context_t& context;
 
-export std::error_category& get_opengl_category() noexcept;
+  public:
+    egl_context_guard(egl_context_t& context, EGLSurface surface) noexcept(false);
+    ~egl_context_guard() noexcept(false);
+};
+
+export _INTERFACE_ bool get_opengl_version(GLint& major, GLint& minor) noexcept;
+
+export _INTERFACE_ std::error_category& get_opengl_category() noexcept;
