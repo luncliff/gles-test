@@ -25,7 +25,7 @@ include(msvc-cpp-modules)
 
 # Generate IFC from primary module interface file
 add_module_interface(gles
-    gles_main.cpp
+    src/gles_main.cpp
 )
 
 # Build with the IFC
@@ -33,8 +33,8 @@ add_module(gles SHARED gles-ifc)
 
 target_sources(gles
 PRIVATE
-    gles_part_0.cpp
-    gles_part_1.cpp
+    src/gles_part_0.cpp
+    src/gles_part_1.cpp
 )
 
 # Handle some complicated includes...
