@@ -1,0 +1,64 @@
+#!/bin/bash
+
+TARGET=test_bcm_image_native
+SOURCE=(
+	main_bcm.cpp
+	app_image_native_bcm.cpp
+	get_file_size.cpp
+)
+CFLAGS=(
+	-pipe
+	-marm
+	-fno-exceptions
+	-fno-rtti
+	-ffast-math
+	-fstrict-aliasing
+	-DSTANDALONE
+	-D__STDC_CONSTANT_MACROS
+	-D__STDC_LIMIT_MACROS
+	-DTARGET_POSIX
+	-D_LINUX
+	-fPIC
+	-DPIC
+	-D_REENTRANT
+	-D_LARGEFILE64_SOURCE
+	-D_FILE_OFFSET_BITS=64
+	-U_FORTIFY_SOURCE
+	-DEGL_EGLEXT_PROTOTYPES
+	-DGL_GLEXT_PROTOTYPES
+	-DHAVE_LIBBCM_HOST
+	-DUSE_EXTERNAL_LIBBCM_HOST
+	-DUSE_VCHIQ_ARM
+	-Wno-psabi
+	-Wno-parentheses
+	-I/opt/vc/include
+	-I/opt/vc/include/interface/vcos/pthreads
+)
+LFLAGS=(
+	-lstdc++
+	-ldl
+	-lrt
+	-L/opt/vc/lib
+	-lGLESv2
+	-lEGL
+	-lbcm_host
+	-lvcos
+	-lvchiq_arm
+)
+
+if [[ $1 == "debug" ]]; then
+	CFLAGS+=(
+		-Wall
+		-O0
+		-g
+		-DDEBUG
+	)
+else
+	CFLAGS+=(
+		-funroll-loops
+		-O3
+		-DNDEBUG
+	)
+fi
+
+g++ -o $TARGET ${CFLAGS[@]} ${SOURCE[@]} ${LFLAGS[@]}

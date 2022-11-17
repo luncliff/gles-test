@@ -1,0 +1,73 @@
+SHELL = /bin/bash
+TARGETS = test_unknown_skeleton_shadow
+
+UNAME := $(shell uname)
+UNAME_SUFFIX := $(shell uname -r | grep -o -E -e -[^-]+$$)
+HOSTTYPE := $(shell $(SHELL) -c "set" | grep HOSTTYPE | grep -o -E [^=]+$$)
+
+ifneq ($(UNAME), Linux)
+$(warning Host platform is not officially supported)
+endif
+
+$(warning $(UNAME))
+$(warning $(UNAME_SUFFIX))
+$(warning $(HOSTTYPE))
+
+SRCS = app_skeleton_shadow.cpp rendSkeleton.cpp rendIndexedTrilist.cpp utilPix.cpp utilTex.cpp get_file_size.cpp
+OBJS = $(SRCS:.cpp=.o)
+
+CC = g++
+CFLAGS += -pipe -fno-rtti -funroll-loops -ffast-math -fstrict-aliasing -Wtrigraphs -Wreturn-type -Wunused-variable -Wunused-value -O3 -DNDEBUG
+
+ifeq ($(HOSTTYPE), arm)
+
+ifeq ($(UNAME_SUFFIX), -efikamx)
+
+TARGETS = test_imx5_skeleton_shadow
+SRCS += main.cpp amd_perf_monitor.cpp
+CFLAGS += -marm -mcpu=cortex-a8 -mfpu=neon -D_LINUX -DEGL_EGLEXT_PROTOTYPES -DGL_GLEXT_PROTOTYPES
+CLINKFLAGS += -lGLESv2 -lEGL -lX11
+
+endif # $(UNAME_SUFFIX)
+
+else # $(HOSTTYPE)
+
+ifeq ($(HOSTTYPE), x86_64)
+CFLAGS += -mfpmath=sse
+else # $(HOSTTYPE)
+CFLAGS += -msse3 -mfpmath=sse
+endif # $(HOSTTYPE)
+
+TARGETS = test_glx_skeleton_shadow
+SRCS += main_glx.cpp amd_perf_monitor.cpp
+CFLAGS += -DPLATFORM_GLX -DGLX_GLXEXT_PROTOTYPES -DGLCOREARB_PROTOTYPES -DGL_GLEXT_PROTOTYPES
+CLINKFLAGS += -lGL -lX11
+
+endif # $(HOSTTYPE)
+
+ifdef USE_XRANDR
+SRCS += xrandr_util.cpp
+CFLAGS += -DUSE_XRANDR
+CLINKFLAGS += -lXrandr
+endif
+
+CLINKFLAGS += -lstdc++ -ldl -lrt
+
+CXXFLAGS = $(CFLAGS)
+CXXLINKFLAGS = $(CLINKFLAGS)
+
+BINARIES := $(TARGETS:=$(EXE))
+
+all: $(BINARIES)
+
+$(BINARIES) : $(OBJS)
+	$(CC) -o $@ $(OBJS) $(CLINKFLAGS)
+
+clean:
+	$(RM) $(BINARIES) $(OBJS)
+
+clobber: clean
+	$(RM) *.bak *~
+
+.PHONY: all clean clobber
+
